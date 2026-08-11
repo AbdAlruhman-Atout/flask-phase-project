@@ -5,17 +5,33 @@
 {% block content %}
 <h2>Dashboard</h2>
 
-<p>
-    Welcome, {{ current_user.username }}.
-</p>
+<p>Welcome, {{ current_user.username }}.</p>
 
-<p>
-    You are currently logged in.
-</p>
+<h3>Overview</h3>
 
-<p>
-    <a href="{{ url_for('auth.logout') }}">
-        Log out
-    </a>
-</p>
+<ul>
+    <li>Total students: {{ student_count }}</li>
+    <li>Total courses: {{ course_count }}</li>
+    <li>Total users: {{ user_count }}</li>
+</ul>
+
+<h3>Management</h3>
+
+<ul>
+    <li>
+        <a href="{{ url_for('students.student_list') }}">
+            Manage students
+        </a>
+    </li>
+    <li>
+        <a href="{{ url_for('courses.course_list') }}">
+            Manage courses
+        </a>
+    </li>
+    <li>
+        <a href="{{ url_for('users.user_list') }}">
+            Manage users
+        </a>
+    </li>
+</ul>
 {% endblock %}

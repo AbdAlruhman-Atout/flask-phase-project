@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Student{% endblock %}
+
+{% block content %}
+<h2>Edit Student</h2>
+
+{% if error %}
+<p>{{ error }}</p>
+{% endif %}
+
+<form method="POST">
+    <p>
+        <strong>Student ID:</strong>
+        {{ student.student_id }}
+    </p>
+
+    <label for="name">Name:</label><br>
+    <input
+        type="text"
+        id="name"
+        name="name"
+        value="{{ student.name }}"
+        required
+    >
+    <br><br>
+
+    <label for="email">Email:</label><br>
+    <input
+        type="email"
+        id="email"
+        name="email"
+        value="{{ student.email }}"
+        required
+    >
+    <br><br>
+
+    <label for="grades">Grades (comma separated):</label><br>
+    <input
+        type="text"
+        id="grades"
+        name="grades"
+        value="{{ student.grades }}"
+    >
+    <br><br>
+
+    <button type="submit">Save changes</button>
+</form>
+
+<p>
+    <a href="{{ url_for(
+        'students.student_detail',
+        student_id=student.student_id
+    ) }}">
+        Cancel
+    </a>
+</p>
+{% endblock %}

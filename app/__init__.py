@@ -27,6 +27,7 @@ def create_app(test_config=None):
         auth_bp,
         courses_bp,
         students_bp,
+        users_bp,
     )
 
     @login_manager.user_loader
@@ -35,6 +36,7 @@ def create_app(test_config=None):
 
     app.register_blueprint(students_bp)
     app.register_blueprint(courses_bp)
+    app.register_blueprint(users_bp)
     app.register_blueprint(api_bp)
     app.register_blueprint(auth_bp)
 

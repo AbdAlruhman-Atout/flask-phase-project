@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Course Details{% endblock %}
+
+{% block content %}
+<h2>{{ course.name }}</h2>
+
+<p><strong>Course ID:</strong> {{ course.id }}</p>
+
+<h3>Enrolled Students</h3>
+
+{% if course.students %}
+<ul>
+    {% for student in course.students %}
+    <li>
+        <a href="{{ url_for(
+            'students.student_detail',
+            student_id=student.student_id
+        ) }}">
+            {{ student.name }}
+        </a>
+    </li>
+    {% endfor %}
+</ul>
+{% else %}
+<p>No students are enrolled in this course.</p>
+{% endif %}
+
+<p>
+    <a href="{{ url_for(
+        'courses.edit_course',
+        course_id=course.id
+    ) }}">
+        Edit course
+    </a>
+</p>
+
+<form
+    method="POST"
+    action="{{ url_for(
+        'courses.delete_course',
+        course_id=course.id
+    ) }}"
+>
+    <button type="submit">Delete course</button>
+</form>
+
+<p>
+    <a href="{{ url_for('courses.course_list') }}">
+        Back to courses
+    </a>
+</p>
+{% endblock %}

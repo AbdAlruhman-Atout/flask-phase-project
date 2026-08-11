@@ -2,6 +2,7 @@ from app.routes.api import api_bp
 from app.routes.auth import auth_bp
 from app.routes.courses import courses_bp
 from app.routes.students import students_bp
+from app.routes.users import users_bp
 
 
 __all__ = [
@@ -9,4 +10,5 @@ __all__ = [
     "auth_bp",
     "courses_bp",
     "students_bp",
+    "users_bp",
 ]

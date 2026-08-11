@@ -1,22 +1,26 @@
 {% extends "base.html" %}
 
-{% block title %}Home | Student Portal{% endblock %}
+{% block title %}Home | Student Management Dashboard{% endblock %}
 
 {% block content %}
-    <h2>Welcome to the Student Portal</h2>
+<h2>Flask Student Management Dashboard</h2>
 
-    <p>
-        Use this application to register students, view all registered
-        students, and open each student's detail page.
-    </p>
+<p>
+    Manage users, students, courses, enrollments, and student grades
+    through a Flask application backed by SQLite.
+</p>
 
-    <p>
-        <a href="{{ url_for('students.register') }}">Register a student</a>
-    </p>
-
-    <p>
-        <a href="{{ url_for('students.student_list') }}">
-            View registered students
-        </a>
-    </p>
+{% if current_user.is_authenticated %}
+<p>
+    <a href="{{ url_for('auth.dashboard') }}">
+        Open dashboard
+    </a>
+</p>
+{% else %}
+<p>
+    <a href="{{ url_for('auth.login') }}">
+        Log in to manage the system
+    </a>
+</p>
+{% endif %}
 {% endblock %}

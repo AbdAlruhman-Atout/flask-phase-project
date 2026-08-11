@@ -3,33 +3,63 @@
 {% block title %}Students{% endblock %}
 
 {% block content %}
-<h2>Registered Students</h2>
-
-{% if students %}
-<ul>
-    {% for student in students %}
-    <li>
-        <a href="{{ url_for('students.student_detail',
-                             student_id=student.student_id) }}">
-            {{ student.name }}
-        </a>
-
-        <br>
-        ID: {{ student.student_id }}
-        <br>
-        Email: {{ student.email }}
-    </li>
-    <br>
-    {% endfor %}
-</ul>
-
-{% else %}
-<p>No students have been registered yet.</p>
-{% endif %}
+<h2>Students</h2>
 
 <p>
     <a href="{{ url_for('students.register') }}">
-        Register another student
+        Add student
     </a>
 </p>
+
+{% if students %}
+<table border="1" cellpadding="6">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Average</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for student in students %}
+        <tr>
+            <td>{{ student.student_id }}</td>
+            <td>{{ student.name }}</td>
+            <td>{{ student.email }}</td>
+            <td>{{ student.average }}</td>
+            <td>
+                <a href="{{ url_for(
+                    'students.student_detail',
+                    student_id=student.student_id
+                ) }}">
+                    View
+                </a>
+
+                <a href="{{ url_for(
+                    'students.edit_student',
+                    student_id=student.student_id
+                ) }}">
+                    Edit
+                </a>
+
+                <form
+                    method="POST"
+                    action="{{ url_for(
+                        'students.delete_student',
+                        student_id=student.student_id
+                    ) }}"
+                    style="display:inline"
+                >
+                    <button type="submit">Delete</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>No students have been registered yet.</p>
+{% endif %}
 {% endblock %}

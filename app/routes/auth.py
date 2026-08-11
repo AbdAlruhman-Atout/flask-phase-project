@@ -3,7 +3,7 @@ from flask_login import login_required, login_user, logout_user
 from sqlalchemy.exc import IntegrityError
 
 from app.extensions import db
-from app.models import User
+from app.models import Course, Student, User
 
 
 auth_bp = Blueprint("auth", __name__)
@@ -14,6 +14,13 @@ def register():
     if request.method == "POST":
         username = request.form["username"].strip()
         password = request.form["password"]
+
+        if not username or not password:
+            flash(
+                "Username and password are required.",
+                "error",
+            )
+            return render_template("auth_register.html")
 
         user = User(username=username)
         user.set_password(password)
@@ -35,7 +42,6 @@ def register():
                 "Account created successfully. You can now log in.",
                 "success",
             )
-
             return redirect(url_for("auth.login"))
 
     return render_template("auth_register.html")
@@ -86,4 +92,19 @@ def logout():
 @auth_bp.route("/dashboard")
 @login_required
 def dashboard():
-    return render_template("dashboard.html")
+    student_count = db.session.scalar(
+        db.select(db.func.count()).select_from(Student)
+    )
+    course_count = db.session.scalar(
+        db.select(db.func.count()).select_from(Course)
+    )
+    user_count = db.session.scalar(
+        db.select(db.func.count()).select_from(User)
+    )
+
+    return render_template(
+        "dashboard.html",
+        student_count=student_count,
+        course_count=course_count,
+        user_count=user_count,
+    )

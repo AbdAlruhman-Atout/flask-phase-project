@@ -6,7 +6,6 @@
 <h2>{{ student.name }}</h2>
 
 <p><strong>ID:</strong> {{ student.student_id }}</p>
-
 <p><strong>Email:</strong> {{ student.email }}</p>
 
 <h3>Grades</h3>
@@ -19,7 +18,6 @@
 </ul>
 
 <p><strong>Average:</strong> {{ student.average }}</p>
-
 {% else %}
 <p>No grades available.</p>
 {% endif %}
@@ -38,10 +36,14 @@
 
 <h3>Enroll in a Course</h3>
 
-<form method="POST"
-      action="{{ url_for('students.enroll_student',
-                         student_id=student.student_id) }}">
-
+{% if courses %}
+<form
+    method="POST"
+    action="{{ url_for(
+        'students.enroll_student',
+        student_id=student.student_id
+    ) }}"
+>
     <select name="course_id" required>
         {% for course in courses %}
             <option value="{{ course.id }}">
@@ -50,9 +52,31 @@
         {% endfor %}
     </select>
 
-    <button type="submit">
-        Enroll
-    </button>
+    <button type="submit">Enroll</button>
+</form>
+{% else %}
+<p>Add a course before enrolling this student.</p>
+{% endif %}
+
+<h3>Actions</h3>
+
+<p>
+    <a href="{{ url_for(
+        'students.edit_student',
+        student_id=student.student_id
+    ) }}">
+        Edit student
+    </a>
+</p>
+
+<form
+    method="POST"
+    action="{{ url_for(
+        'students.delete_student',
+        student_id=student.student_id
+    ) }}"
+>
+    <button type="submit">Delete student</button>
 </form>
 
 <p>

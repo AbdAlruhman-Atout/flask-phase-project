@@ -1,4 +1,5 @@
-from flask import Blueprint, redirect, render_template, request, url_for
+from flask import Blueprint, abort, redirect, render_template, request, url_for
+from flask_login import login_required
 from sqlalchemy.exc import IntegrityError
 
 from app.extensions import db
@@ -9,6 +10,7 @@ courses_bp = Blueprint("courses", __name__)
 
 
 @courses_bp.route("/courses")
+@login_required
 def course_list():
     statement = db.select(Course).order_by(Course.name)
     courses = db.session.execute(statement).scalars().all()
@@ -19,24 +21,104 @@ def course_list():
     )
 
 
+@courses_bp.route("/courses/<int:course_id>")
+@login_required
+def course_detail(course_id):
+    course = db.session.get(Course, course_id)
+
+    if course is None:
+        abort(404)
+
+    return render_template(
+        "course_detail.html",
+        course=course,
+    )
+
+
 @courses_bp.route("/courses/add", methods=["GET", "POST"])
+@login_required
 def add_course():
     error = None
 
     if request.method == "POST":
         name = request.form["name"].strip()
-        course = Course(name=name)
 
-        try:
-            db.session.add(course)
-            db.session.commit()
-        except IntegrityError:
-            db.session.rollback()
-            error = "That course already exists."
-        else:
-            return redirect(url_for("courses.course_list"))
+        if not name:
+            error = "Course name is required."
+
+        if error is None:
+            course = Course(name=name)
+
+            try:
+                db.session.add(course)
+                db.session.commit()
+            except IntegrityError:
+                db.session.rollback()
+                error = "That course already exists."
+            else:
+                return redirect(url_for("courses.course_list"))
 
     return render_template(
         "add_course.html",
         error=error,
     )
+
+
+@courses_bp.route(
+    "/courses/<int:course_id>/edit",
+    methods=["GET", "POST"],
+)
+@login_required
+def edit_course(course_id):
+    course = db.session.get(Course, course_id)
+
+    if course is None:
+        abort(404)
+
+    error = None
+
+    if request.method == "POST":
+        name = request.form["name"].strip()
+
+        if not name:
+            error = "Course name is required."
+
+        if error is None:
+            course.name = name
+
+            try:
+                db.session.commit()
+            except IntegrityError:
+                db.session.rollback()
+                error = "That course already exists."
+            else:
+                return redirect(
+                    url_for(
+                        "courses.course_detail",
+                        course_id=course.id,
+                    )
+                )
+
+    return render_template(
+        "edit_course.html",
+        course=course,
+        error=error,
+    )
+
+
+@courses_bp.route(
+    "/courses/<int:course_id>/delete",
+    methods=["POST"],
+)
+@login_required
+def delete_course(course_id):
+    course = db.session.get(Course, course_id)
+
+    if course is None:
+        abort(404)
+
+    course.students.clear()
+    db.session.delete(course)
+    db.session.commit()
+
+    return redirect(url_for("courses.course_list"))

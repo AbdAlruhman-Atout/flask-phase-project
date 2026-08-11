@@ -9,6 +9,7 @@ def app():
     app = create_app(
         {
             "TESTING": True,
+            "SECRET_KEY": "test-secret-key",
             "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
         }
     )

@@ -1,4 +1,5 @@
 from flask import Blueprint, abort, redirect, render_template, request, url_for
+from flask_login import login_required
 from sqlalchemy.exc import IntegrityError
 
 from app.extensions import db
@@ -6,6 +7,22 @@ from app.models import Course, Student
 
 
 students_bp = Blueprint("students", __name__)
+
+
+def parse_grades(grades_text):
+    try:
+        grades = [
+            float(grade.strip())
+            for grade in grades_text.split(",")
+            if grade.strip()
+        ]
+    except ValueError:
+        return None, "Grades must be numbers separated by commas."
+
+    if any(grade < 0 or grade > 100 for grade in grades):
+        return None, "Each grade must be between 0 and 100."
+
+    return grades, None
 
 
 @students_bp.route("/")
@@ -17,6 +34,7 @@ def home():
     "/students/register",
     methods=["GET", "POST"],
 )
+@login_required
 def register():
     error = None
 
@@ -26,32 +44,26 @@ def register():
         email = request.form["email"].strip()
         grades_text = request.form["grades"].strip()
 
+        if not name:
+            error = "Name is required."
+        elif not email:
+            error = "Email is required."
+
         try:
             student_id = int(student_id_text)
-
-            grades = [
-                float(grade.strip())
-                for grade in grades_text.split(",")
-                if grade.strip()
-            ]
-
-            if any(grade < 0 or grade > 100 for grade in grades):
-                error = "Each grade must be between 0 and 100."
-
         except ValueError:
-            error = (
-                "Student ID must be an integer and grades must be "
-                "numbers separated by commas."
-            )
+            error = "Student ID must be an integer."
+
+        grades, grades_error = parse_grades(grades_text)
+        if grades_error is not None:
+            error = grades_error
 
         if error is None:
-            normalized_grades = ",".join(str(grade) for grade in grades)
-
             student = Student(
                 student_id=student_id,
                 name=name,
                 email=email,
-                grades=normalized_grades,
+                grades=",".join(str(grade) for grade in grades),
             )
 
             try:
@@ -70,6 +82,7 @@ def register():
 
 
 @students_bp.route("/students")
+@login_required
 def student_list():
     statement = db.select(Student).order_by(Student.name)
     students = db.session.execute(statement).scalars().all()
@@ -81,9 +94,9 @@ def student_list():
 
 
 @students_bp.route("/students/<int:student_id>")
+@login_required
 def student_detail(student_id):
     student = db.session.get(Student, student_id)
-
     if student is None:
         abort(404)
 
@@ -98,9 +111,80 @@ def student_detail(student_id):
 
 
 @students_bp.route(
+    "/students/<int:student_id>/edit",
+    methods=["GET", "POST"],
+)
+@login_required
+def edit_student(student_id):
+    student = db.session.get(Student, student_id)
+
+    if student is None:
+        abort(404)
+
+    error = None
+
+    if request.method == "POST":
+        name = request.form["name"].strip()
+        email = request.form["email"].strip()
+        grades_text = request.form["grades"].strip()
+
+        if not name:
+            error = "Name is required."
+        elif not email:
+            error = "Email is required."
+
+        grades, grades_error = parse_grades(grades_text)
+        if grades_error is not None:
+            error = grades_error
+
+        if error is None:
+            student.name = name
+            student.email = email
+            student.grades = ",".join(str(grade) for grade in grades)
+
+            try:
+                db.session.commit()
+            except IntegrityError:
+                db.session.rollback()
+                error = "That email is already registered."
+            else:
+                return redirect(
+                    url_for(
+                        "students.student_detail",
+                        student_id=student.student_id,
+                    )
+                )
+
+    return render_template(
+        "edit_student.html",
+        student=student,
+        error=error,
+    )
+
+
+@students_bp.route(
+    "/students/<int:student_id>/delete",
+    methods=["POST"],
+)
+@login_required
+def delete_student(student_id):
+    student = db.session.get(Student, student_id)
+
+    if student is None:
+        abort(404)
+
+    student.courses.clear()
+    db.session.delete(student)
+    db.session.commit()
+
+    return redirect(url_for("students.student_list"))
+
+
+@students_bp.route(
     "/students/<int:student_id>/enroll",
     methods=["POST"],
 )
+@login_required
 def enroll_student(student_id):
     course_id = request.form.get("course_id", type=int)
 
