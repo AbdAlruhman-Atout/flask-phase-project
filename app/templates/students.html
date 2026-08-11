@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Students{% endblock %}
+
+{% block content %}
+<h2>Registered Students</h2>
+
+{% if students %}
+<ul>
+    {% for student in students %}
+    <li>
+        <a href="{{ url_for('students.student_detail',
+                             student_id=student.student_id) }}">
+            {{ student.name }}
+        </a>
+
+        <br>
+        ID: {{ student.student_id }}
+        <br>
+        Email: {{ student.email }}
+    </li>
+    <br>
+    {% endfor %}
+</ul>
+
+{% else %}
+<p>No students have been registered yet.</p>
+{% endif %}
+
+<p>
+    <a href="{{ url_for('students.register') }}">
+        Register another student
+    </a>
+</p>
+{% endblock %}

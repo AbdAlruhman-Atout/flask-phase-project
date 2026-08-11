@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}Home | Student Portal{% endblock %}
+
+{% block content %}
+    <h2>Welcome to the Student Portal</h2>
+
+    <p>
+        Use this application to register students, view all registered
+        students, and open each student's detail page.
+    </p>
+
+    <p>
+        <a href="{{ url_for('students.register') }}">Register a student</a>
+    </p>
+
+    <p>
+        <a href="{{ url_for('students.student_list') }}">
+            View registered students
+        </a>
+    </p>
+{% endblock %}

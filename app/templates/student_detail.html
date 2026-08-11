@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}Student Details{% endblock %}
+
+{% block content %}
+<h2>{{ student.name }}</h2>
+
+<p><strong>ID:</strong> {{ student.student_id }}</p>
+
+<p><strong>Email:</strong> {{ student.email }}</p>
+
+<h3>Grades</h3>
+
+{% if student.get_grades() %}
+<ul>
+    {% for grade in student.get_grades() %}
+        <li>{{ grade }}</li>
+    {% endfor %}
+</ul>
+
+<p><strong>Average:</strong> {{ student.average }}</p>
+
+{% else %}
+<p>No grades available.</p>
+{% endif %}
+
+<h3>Courses</h3>
+
+{% if student.courses %}
+<ul>
+    {% for course in student.courses %}
+        <li>{{ course.name }}</li>
+    {% endfor %}
+</ul>
+{% else %}
+<p>This student is not enrolled in any courses.</p>
+{% endif %}
+
+<h3>Enroll in a Course</h3>
+
+<form method="POST"
+      action="{{ url_for('students.enroll_student',
+                         student_id=student.student_id) }}">
+
+    <select name="course_id" required>
+        {% for course in courses %}
+            <option value="{{ course.id }}">
+                {{ course.name }}
+            </option>
+        {% endfor %}
+    </select>
+
+    <button type="submit">
+        Enroll
+    </button>
+</form>
+
+<p>
+    <a href="{{ url_for('students.student_list') }}">
+        Back to students
+    </a>
+</p>
+{% endblock %}

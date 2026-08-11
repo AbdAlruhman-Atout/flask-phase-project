@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}404{% endblock %}
+
+{% block content %}
+<h2>404 - Student Not Found</h2>
+
+<p>
+    The requested student does not exist.
+</p>
+
+<p>
+    <a href="{{ url_for('students.home') }}">
+        Return Home
+    </a>
+</p>
+{% endblock %}

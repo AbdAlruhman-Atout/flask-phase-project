@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Register Student{% endblock %}
+
+{% block content %}
+<h2>Register Student</h2>
+
+<form method="POST">
+    <label for="name">Name:</label><br>
+    <input type="text" id="name" name="name" required>
+    <br><br>
+
+    <label for="student_id">Student ID:</label><br>
+    <input type="number" id="student_id" name="student_id" required>
+    <br><br>
+
+    <label for="email">Email:</label><br>
+    <input type="email" id="email" name="email" required>
+    <br><br>
+
+    <label for="grades">Grades (comma separated):</label><br>
+    <input
+        type="text"
+        id="grades"
+        name="grades"
+        placeholder="90, 85, 78"
+    >
+    <br><br>
+
+    <button type="submit">Register</button>
+</form>
+{% endblock %}

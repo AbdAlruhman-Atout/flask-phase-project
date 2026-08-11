@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Courses</h1>
+
+    {% if courses %}
+        <ul>
+            {% for course in courses %}
+                <li>
+                    {{ course.name }}
+                    — {{ course.students | length }} students
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No courses have been added yet.</p>
+    {% endif %}
+
+    <a href="{{ url_for('courses.add_course') }}">
+        Add course
+    </a>
+{% endblock %}

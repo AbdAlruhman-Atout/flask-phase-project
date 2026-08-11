@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Add Course</h1>
+
+    {% if error %}
+        <p>{{ error }}</p>
+    {% endif %}
+
+    <form method="POST">
+        <label for="name">Course name:</label>
+
+        <input
+            type="text"
+            id="name"
+            name="name"
+            required
+        >
+
+        <button type="submit">Add Course</button>
+    </form>
+
+    <a href="{{ url_for('courses.course_list') }}">
+        View courses
+    </a>
+{% endblock %}
