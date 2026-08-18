@@ -67,6 +67,48 @@ def test_course_api_crud(client):
     assert delete_response.status_code == 204
 
 
+def test_enrollment_api(client):
+    student_response = client.post(
+        "/api/students",
+        json={
+            "student_id": 100,
+            "name": "Alice",
+            "email": "alice@example.com",
+            "grades": [90, 85],
+        },
+    )
+    assert student_response.status_code == 201
+
+    course_response = client.post(
+        "/api/courses",
+        json={"name": "Flask"},
+    )
+    assert course_response.status_code == 201
+
+    course_id = course_response.get_json()["id"]
+
+    enroll_response = client.post(
+        f"/api/students/100/courses/{course_id}"
+    )
+
+    assert enroll_response.status_code == 201
+
+    data = enroll_response.get_json()
+
+    assert len(data["courses"]) == 1
+    assert data["courses"][0]["id"] == course_id
+    assert data["courses"][0]["name"] == "Flask"
+
+    duplicate_response = client.post(
+        f"/api/students/100/courses/{course_id}"
+    )
+
+    assert duplicate_response.status_code == 409
+    assert duplicate_response.get_json()["message"] == (
+        "Student is already enrolled in this course."
+    )
+
+
 def test_user_api_crud_does_not_expose_password_hash(client):
     create_response = client.post(
         "/api/users",
@@ -148,3 +190,95 @@ def test_api_validation_and_not_found(client):
     missing = client.get("/api/students/9999")
     assert missing.status_code == 404
     assert missing.get_json()["error"] == "not_found"
+
+def test_unenrollment_api(client):
+    student_response = client.post(
+        "/api/students",
+        json={
+            "student_id": 200,
+            "name": "Bob",
+            "email": "bob@example.com",
+            "grades": [80, 90],
+        },
+    )
+    assert student_response.status_code == 201
+
+    course_response = client.post(
+        "/api/courses",
+        json={"name": "Databases"},
+    )
+    assert course_response.status_code == 201
+
+    course_id = course_response.get_json()["id"]
+
+    enroll_response = client.post(
+        f"/api/students/200/courses/{course_id}"
+    )
+    assert enroll_response.status_code == 201
+
+    unenroll_response = client.delete(
+        f"/api/students/200/courses/{course_id}"
+    )
+    assert unenroll_response.status_code == 204
+
+    student_response = client.get("/api/students/200")
+    assert student_response.status_code == 200
+    assert student_response.get_json()["courses"] == []
+
+    second_unenroll = client.delete(
+        f"/api/students/200/courses/{course_id}"
+    )
+    assert second_unenroll.status_code == 404
+
+def test_get_student_courses_api(client):
+    student_response = client.post(
+        "/api/students",
+        json={
+            "student_id": 300,
+            "name": "Charlie",
+            "email": "charlie@example.com",
+            "grades": [75, 88],
+        },
+    )
+    assert student_response.status_code == 201
+
+    course1_response = client.post(
+        "/api/courses",
+        json={"name": "Python"},
+    )
+    assert course1_response.status_code == 201
+
+    course2_response = client.post(
+        "/api/courses",
+        json={"name": "Flask"},
+    )
+    assert course2_response.status_code == 201
+
+    course1_id = course1_response.get_json()["id"]
+    course2_id = course2_response.get_json()["id"]
+
+    assert (
+        client.post(
+            f"/api/students/300/courses/{course1_id}"
+        ).status_code
+        == 201
+    )
+
+    assert (
+        client.post(
+            f"/api/students/300/courses/{course2_id}"
+        ).status_code
+        == 201
+    )
+
+    response = client.get("/api/students/300/courses")
+
+    assert response.status_code == 200
+
+    data = response.get_json()
+
+    assert len(data) == 2
+
+    names = {course["name"] for course in data}
+
+    assert names == {"Python", "Flask"}

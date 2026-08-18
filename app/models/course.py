@@ -20,4 +20,5 @@ class Course(db.Model):
         "Student",
         secondary=student_courses,
         back_populates="courses",
+        passive_deletes=True,
     )

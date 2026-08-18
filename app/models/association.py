@@ -6,13 +6,13 @@ student_courses = db.Table(
     db.Column(
         "student_id",
         db.Integer,
-        db.ForeignKey("students.student_id"),
+        db.ForeignKey("students.student_id", ondelete="CASCADE"),
         primary_key=True,
     ),
     db.Column(
         "course_id",
         db.Integer,
-        db.ForeignKey("courses.id"),
+        db.ForeignKey("courses.id", ondelete="CASCADE"),
         primary_key=True,
     ),
 )

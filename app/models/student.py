@@ -31,6 +31,7 @@ class Student(db.Model):
         "Course",
         secondary=student_courses,
         back_populates="students",
+        passive_deletes=True,
     )
 
     def get_grades(self):

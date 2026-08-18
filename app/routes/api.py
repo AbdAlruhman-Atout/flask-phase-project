@@ -261,6 +261,107 @@ def delete_student(student_id):
 
     return "", 204
 
+@api_bp.route(
+    "/students/<int:student_id>/courses/<int:course_id>",
+    methods=["POST"],
+)
+def enroll_student_in_course(student_id, course_id):
+    student = db.session.get(Student, student_id)
+
+    if student is None:
+        abort(
+            404,
+            description="Student not found.",
+        )
+
+    course = db.session.get(Course, course_id)
+
+    if course is None:
+        abort(
+            404,
+            description="Course not found.",
+        )
+
+    if course in student.courses:
+        return (
+            jsonify(
+                {
+                    "error": "conflict",
+                    "message": "Student is already enrolled in this course.",
+                }
+            ),
+            409,
+        )
+
+    student.courses.append(course)
+    db.session.commit()
+
+    return jsonify(student_to_dict(student)), 201
+
+@api_bp.route(
+    "/students/<int:student_id>/courses/<int:course_id>",
+    methods=["DELETE"],
+)
+def unenroll_student_from_course(student_id, course_id):
+    student = db.session.get(Student, student_id)
+
+    if student is None:
+        abort(
+            404,
+            description="Student not found.",
+        )
+
+    course = db.session.get(Course, course_id)
+
+    if course is None:
+        abort(
+            404,
+            description="Course not found.",
+        )
+
+    if course not in student.courses:
+        abort(
+            404,
+            description="Student is not enrolled in this course.",
+        )
+
+    student.courses.remove(course)
+    db.session.commit()
+
+    return "", 204
+
+
+@api_bp.route(
+    "/students/<int:student_id>/courses",
+    methods=["GET"],
+)
+def get_student_courses(student_id):
+    student = db.session.get(Student, student_id)
+
+    if student is None:
+        abort(
+            404,
+            description="Student not found.",
+        )
+
+    courses = sorted(
+        student.courses,
+        key=lambda course: course.name,
+    )
+
+    return (
+        jsonify(
+            [
+                {
+                    "id": course.id,
+                    "name": course.name,
+                }
+                for course in courses
+            ]
+        ),
+        200,
+    )
+
 
 @api_bp.route("/courses", methods=["GET"])
 def get_courses():
