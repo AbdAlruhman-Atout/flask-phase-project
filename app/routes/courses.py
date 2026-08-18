@@ -21,9 +21,7 @@ def course_list():
     statement = db.select(Course)
 
     if search:
-        statement = statement.where(
-            Course.name.ilike(f"%{search}%")
-        )
+        statement = statement.where(Course.name.ilike(f"%{search}%"))
 
     statement = statement.order_by(Course.name)
 

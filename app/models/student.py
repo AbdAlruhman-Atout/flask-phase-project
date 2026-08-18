@@ -39,9 +39,7 @@ class Student(db.Model):
             return []
 
         return [
-            float(grade.strip())
-            for grade in self.grades.split(",")
-            if grade.strip()
+            float(grade.strip()) for grade in self.grades.split(",") if grade.strip()
         ]
 
     @property

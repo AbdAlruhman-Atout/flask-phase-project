@@ -19,3 +19,10 @@ htmlcov/
 # Uploaded profile pictures
 app/static/uploads/profiles/*
 !app/static/uploads/profiles/.gitkeep
+
+# Python generated files
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/

@@ -12,9 +12,7 @@ students_bp = Blueprint("students", __name__)
 def parse_grades(grades_text):
     try:
         grades = [
-            float(grade.strip())
-            for grade in grades_text.split(",")
-            if grade.strip()
+            float(grade.strip()) for grade in grades_text.split(",") if grade.strip()
         ]
     except ValueError:
         return None, "Grades must be numbers separated by commas."
@@ -94,9 +92,7 @@ def student_list():
     statement = db.select(Student)
 
     if search:
-        statement = statement.where(
-            Student.name.ilike(f"%{search}%")
-        )
+        statement = statement.where(Student.name.ilike(f"%{search}%"))
 
     statement = statement.order_by(Student.name)
 
@@ -229,5 +225,3 @@ def enroll_student(student_id):
             student_id=student.student_id,
         )
     )
-
-

@@ -55,9 +55,7 @@ def test_deleting_student_removes_enrollments(app):
         assert db.session.get(Course, course_id) is not None
 
         rows = db.session.execute(
-            db.select(student_courses).where(
-                student_courses.c.student_id == student_id
-            )
+            db.select(student_courses).where(student_courses.c.student_id == student_id)
         ).all()
 
         assert rows == []
@@ -90,9 +88,7 @@ def test_deleting_course_removes_enrollments(app):
         assert db.session.get(Student, student_id) is not None
 
         rows = db.session.execute(
-            db.select(student_courses).where(
-                student_courses.c.course_id == course_id
-            )
+            db.select(student_courses).where(student_courses.c.course_id == course_id)
         ).all()
 
         assert rows == []
