@@ -1,10 +1,11 @@
 from flask import Blueprint, abort, flash, redirect, render_template, url_for
-from flask_login import current_user, login_required, logout_user
+from flask_login import current_user, logout_user
 from sqlalchemy.exc import IntegrityError
 
 from app.extensions import db
-from app.models import User
 from app.forms import UserEditForm
+from app.models import User
+from app.utils.auth import roles_required
 from app.utils.uploads import (
     delete_profile_picture,
     save_profile_picture,
@@ -15,7 +16,7 @@ users_bp = Blueprint("users", __name__)
 
 
 @users_bp.route("/users")
-@login_required
+@roles_required("admin")
 def user_list():
     statement = db.select(User).order_by(User.username)
     users = db.session.execute(statement).scalars().all()
@@ -27,7 +28,7 @@ def user_list():
 
 
 @users_bp.route("/users/<int:user_id>")
-@login_required
+@roles_required("admin")
 def user_detail(user_id):
     user = db.session.get(User, user_id)
 
@@ -44,7 +45,7 @@ def user_detail(user_id):
     "/users/<int:user_id>/edit",
     methods=["GET", "POST"],
 )
-@login_required
+@roles_required("admin")
 def edit_user(user_id):
     user = db.session.get(User, user_id)
 
@@ -56,6 +57,9 @@ def edit_user(user_id):
     if form.validate_on_submit():
         user.username = form.username.data.strip()
 
+        if form.role.data:
+            user.role = form.role.data
+
         if form.password.data:
             user.set_password(form.password.data)
 
@@ -64,7 +68,6 @@ def edit_user(user_id):
 
         if form.profile_picture.data:
             new_picture = save_profile_picture(form.profile_picture.data)
-
             user.profile_picture = new_picture
 
         try:
@@ -113,7 +116,7 @@ def edit_user(user_id):
     "/users/<int:user_id>/delete",
     methods=["POST"],
 )
-@login_required
+@roles_required("admin")
 def delete_user(user_id):
     user = db.session.get(User, user_id)
 

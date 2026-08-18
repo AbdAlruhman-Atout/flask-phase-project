@@ -14,12 +14,14 @@
         </p>
     </div>
 
+    {% if current_user.role in ["admin", "instructor"] %}
     <a
         href="{{ url_for('courses.add_course') }}"
         class="btn btn-primary"
     >
         Add Course
     </a>
+    {% endif %}
 </div>
 
 <div class="card shadow-sm mb-4">
@@ -104,6 +106,8 @@
                                 View
                             </a>
 
+                            {% if current_user.role in ["admin", "instructor"] %}
+
                             <a
                                 href="{{ url_for(
                                     'courses.edit_course',
@@ -135,6 +139,8 @@
                                     Delete
                                 </button>
                             </form>
+
+                            {% endif %}
 
                         </td>
                     </tr>

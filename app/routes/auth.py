@@ -16,6 +16,17 @@ def flash_form_errors(form):
             flash(error, "error")
 
 
+def get_new_user_role():
+    user_count = db.session.scalar(db.select(db.func.count()).select_from(User))
+
+    # Bootstrap a fresh installation with one administrator.
+    if user_count == 0:
+        return "admin"
+
+    # Public registrations after the first account are students.
+    return "student"
+
+
 @auth_bp.route("/register", methods=["GET", "POST"])
 def register():
     form = RegistrationForm()
@@ -24,13 +35,15 @@ def register():
         username = form.username.data.strip()
         password = form.password.data
 
-        user = User(username=username)
+        user = User(
+            username=username,
+            role=get_new_user_role(),
+        )
         user.set_password(password)
 
         try:
             db.session.add(user)
             db.session.commit()
-
         except IntegrityError:
             db.session.rollback()
             flash(
