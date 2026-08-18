@@ -5,3 +5,6 @@ Flask-Login
 python-dotenv
 pytest
 Flask-WTF
+pytest-cov
+black==25.1.0
+flake8

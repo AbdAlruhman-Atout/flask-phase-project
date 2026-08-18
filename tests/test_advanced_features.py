@@ -32,9 +32,7 @@ def test_profile_picture_upload(client, app):
 
     with app.app_context():
         user = db.session.execute(
-            db.select(User).where(
-                User.username == "uploaduser"
-            )
+            db.select(User).where(User.username == "uploaduser")
         ).scalar_one()
         user_id = user.id
 
@@ -62,10 +60,7 @@ def test_profile_picture_upload(client, app):
 
         filename = Path(user.profile_picture).name
 
-        saved_file = (
-            Path(app.config["PROFILE_UPLOAD_FOLDER"])
-            / filename
-        )
+        saved_file = Path(app.config["PROFILE_UPLOAD_FOLDER"]) / filename
 
         assert saved_file.exists()
 
@@ -75,9 +70,7 @@ def test_invalid_profile_picture_type(client, app):
 
     with app.app_context():
         user = db.session.execute(
-            db.select(User).where(
-                User.username == "uploaduser"
-            )
+            db.select(User).where(User.username == "uploaduser")
         ).scalar_one()
         user_id = user.id
 
@@ -100,8 +93,6 @@ def test_invalid_profile_picture_type(client, app):
 
 
 def test_custom_404_page(client):
-    response = client.get(
-        "/definitely-does-not-exist"
-    )
+    response = client.get("/definitely-does-not-exist")
 
     assert response.status_code == 404

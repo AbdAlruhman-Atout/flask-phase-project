@@ -63,13 +63,9 @@ def login():
         username = form.username.data.strip()
         password = form.password.data
 
-        statement = db.select(User).where(
-            User.username == username
-        )
+        statement = db.select(User).where(User.username == username)
 
-        user = db.session.execute(
-            statement
-        ).scalar_one_or_none()
+        user = db.session.execute(statement).scalar_one_or_none()
 
         if user is None or not user.check_password(password):
             flash(
@@ -112,17 +108,11 @@ def logout():
 @auth_bp.route("/dashboard")
 @login_required
 def dashboard():
-    student_count = db.session.scalar(
-        db.select(db.func.count()).select_from(Student)
-    )
+    student_count = db.session.scalar(db.select(db.func.count()).select_from(Student))
 
-    course_count = db.session.scalar(
-        db.select(db.func.count()).select_from(Course)
-    )
+    course_count = db.session.scalar(db.select(db.func.count()).select_from(Course))
 
-    user_count = db.session.scalar(
-        db.select(db.func.count()).select_from(User)
-    )
+    user_count = db.session.scalar(db.select(db.func.count()).select_from(User))
 
     return render_template(
         "dashboard.html",

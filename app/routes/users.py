@@ -57,17 +57,13 @@ def edit_user(user_id):
         user.username = form.username.data.strip()
 
         if form.password.data:
-            user.set_password(
-                form.password.data
-            )
+            user.set_password(form.password.data)
 
         old_picture = user.profile_picture
         new_picture = None
 
         if form.profile_picture.data:
-            new_picture = save_profile_picture(
-                form.profile_picture.data
-            )
+            new_picture = save_profile_picture(form.profile_picture.data)
 
             user.profile_picture = new_picture
 
@@ -78,9 +74,7 @@ def edit_user(user_id):
             db.session.rollback()
 
             if new_picture:
-                delete_profile_picture(
-                    new_picture
-                )
+                delete_profile_picture(new_picture)
 
             flash(
                 "That username is already registered.",
@@ -88,14 +82,8 @@ def edit_user(user_id):
             )
 
         else:
-            if (
-                new_picture
-                and old_picture
-                and old_picture != new_picture
-            ):
-                delete_profile_picture(
-                    old_picture
-                )
+            if new_picture and old_picture and old_picture != new_picture:
+                delete_profile_picture(old_picture)
 
             flash(
                 "User updated successfully.",
@@ -119,6 +107,7 @@ def edit_user(user_id):
         user=user,
         form=form,
     )
+
 
 @users_bp.route(
     "/users/<int:user_id>/delete",

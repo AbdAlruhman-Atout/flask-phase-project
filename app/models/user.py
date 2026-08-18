@@ -17,7 +17,7 @@ class User(UserMixin, db.Model):
         unique=True,
         nullable=False,
     )
-    
+
     profile_picture = db.Column(
         db.String(255),
         nullable=True,

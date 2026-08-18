@@ -118,8 +118,7 @@ def create_student():
         abort(
             400,
             description=(
-                "Missing required fields: "
-                + ", ".join(sorted(missing_fields))
+                "Missing required fields: " + ", ".join(sorted(missing_fields))
             ),
         )
 
@@ -199,8 +198,7 @@ def update_student(student_id):
         abort(
             400,
             description=(
-                "Provide at least one field to update: "
-                "name, email, or grades."
+                "Provide at least one field to update: " "name, email, or grades."
             ),
         )
 
@@ -262,6 +260,7 @@ def delete_student(student_id):
 
     return "", 204
 
+
 @api_bp.route(
     "/students/<int:student_id>/courses/<int:course_id>",
     methods=["POST"],
@@ -298,6 +297,7 @@ def enroll_student_in_course(student_id, course_id):
     db.session.commit()
 
     return jsonify(student_to_dict(student)), 201
+
 
 @api_bp.route(
     "/students/<int:student_id>/courses/<int:course_id>",
@@ -527,8 +527,7 @@ def create_user():
         abort(
             400,
             description=(
-                "Missing required fields: "
-                + ", ".join(sorted(missing_fields))
+                "Missing required fields: " + ", ".join(sorted(missing_fields))
             ),
         )
 
@@ -588,8 +587,7 @@ def update_user(user_id):
         abort(
             400,
             description=(
-                "Provide at least one field to update: "
-                "username or password."
+                "Provide at least one field to update: " "username or password."
             ),
         )
 

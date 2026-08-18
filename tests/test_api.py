@@ -87,9 +87,7 @@ def test_enrollment_api(client):
 
     course_id = course_response.get_json()["id"]
 
-    enroll_response = client.post(
-        f"/api/students/100/courses/{course_id}"
-    )
+    enroll_response = client.post(f"/api/students/100/courses/{course_id}")
 
     assert enroll_response.status_code == 201
 
@@ -99,9 +97,7 @@ def test_enrollment_api(client):
     assert data["courses"][0]["id"] == course_id
     assert data["courses"][0]["name"] == "Flask"
 
-    duplicate_response = client.post(
-        f"/api/students/100/courses/{course_id}"
-    )
+    duplicate_response = client.post(f"/api/students/100/courses/{course_id}")
 
     assert duplicate_response.status_code == 409
     assert duplicate_response.get_json()["message"] == (
@@ -191,6 +187,7 @@ def test_api_validation_and_not_found(client):
     assert missing.status_code == 404
     assert missing.get_json()["error"] == "not_found"
 
+
 def test_unenrollment_api(client):
     student_response = client.post(
         "/api/students",
@@ -211,24 +208,19 @@ def test_unenrollment_api(client):
 
     course_id = course_response.get_json()["id"]
 
-    enroll_response = client.post(
-        f"/api/students/200/courses/{course_id}"
-    )
+    enroll_response = client.post(f"/api/students/200/courses/{course_id}")
     assert enroll_response.status_code == 201
 
-    unenroll_response = client.delete(
-        f"/api/students/200/courses/{course_id}"
-    )
+    unenroll_response = client.delete(f"/api/students/200/courses/{course_id}")
     assert unenroll_response.status_code == 204
 
     student_response = client.get("/api/students/200")
     assert student_response.status_code == 200
     assert student_response.get_json()["courses"] == []
 
-    second_unenroll = client.delete(
-        f"/api/students/200/courses/{course_id}"
-    )
+    second_unenroll = client.delete(f"/api/students/200/courses/{course_id}")
     assert second_unenroll.status_code == 404
+
 
 def test_get_student_courses_api(client):
     student_response = client.post(
@@ -257,19 +249,9 @@ def test_get_student_courses_api(client):
     course1_id = course1_response.get_json()["id"]
     course2_id = course2_response.get_json()["id"]
 
-    assert (
-        client.post(
-            f"/api/students/300/courses/{course1_id}"
-        ).status_code
-        == 201
-    )
+    assert client.post(f"/api/students/300/courses/{course1_id}").status_code == 201
 
-    assert (
-        client.post(
-            f"/api/students/300/courses/{course2_id}"
-        ).status_code
-        == 201
-    )
+    assert client.post(f"/api/students/300/courses/{course2_id}").status_code == 201
 
     response = client.get("/api/students/300/courses")
 
