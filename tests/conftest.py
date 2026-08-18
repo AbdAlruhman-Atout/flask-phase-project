@@ -1,7 +1,16 @@
 import pytest
+from sqlalchemy import event
+from sqlalchemy.engine import Engine
 
 from app import create_app
 from app.extensions import db
+
+
+@event.listens_for(Engine, "connect")
+def enable_sqlite_foreign_keys(dbapi_connection, connection_record):
+    cursor = dbapi_connection.cursor()
+    cursor.execute("PRAGMA foreign_keys=ON")
+    cursor.close()
 
 
 @pytest.fixture

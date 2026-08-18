@@ -12,12 +12,33 @@ courses_bp = Blueprint("courses", __name__)
 @courses_bp.route("/courses")
 @login_required
 def course_list():
-    statement = db.select(Course).order_by(Course.name)
-    courses = db.session.execute(statement).scalars().all()
+    search = request.args.get("search", "").strip()
+    page = request.args.get("page", 1, type=int)
+    per_page = request.args.get("per_page", 10, type=int)
+
+    per_page = max(1, min(per_page, 100))
+
+    statement = db.select(Course)
+
+    if search:
+        statement = statement.where(
+            Course.name.ilike(f"%{search}%")
+        )
+
+    statement = statement.order_by(Course.name)
+
+    pagination = db.paginate(
+        statement,
+        page=page,
+        per_page=per_page,
+        error_out=False,
+    )
 
     return render_template(
         "courses.html",
-        courses=courses,
+        courses=pagination.items,
+        pagination=pagination,
+        search=search,
     )
 
 

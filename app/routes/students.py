@@ -84,12 +84,34 @@ def register():
 @students_bp.route("/students")
 @login_required
 def student_list():
-    statement = db.select(Student).order_by(Student.name)
-    students = db.session.execute(statement).scalars().all()
+    search = request.args.get("search", "").strip()
+    page = request.args.get("page", 1, type=int)
+    per_page = request.args.get("per_page", 10, type=int)
+
+    # Keep the page size within a reasonable range.
+    per_page = max(1, min(per_page, 100))
+
+    statement = db.select(Student)
+
+    if search:
+        statement = statement.where(
+            Student.name.ilike(f"%{search}%")
+        )
+
+    statement = statement.order_by(Student.name)
+
+    pagination = db.paginate(
+        statement,
+        page=page,
+        per_page=per_page,
+        error_out=False,
+    )
 
     return render_template(
         "students.html",
-        students=students,
+        students=pagination.items,
+        pagination=pagination,
+        search=search,
     )
 
 
