@@ -375,3 +375,96 @@ The Flask Student Management Dashboard provides a complete web-based management 
 * Automated testing
 * SQLAlchemy database integration
 * Flask database migrations
+
+## Week 4 Expansion Plan
+
+The Week 4 capstone expansion will extend the existing Student Management Dashboard with role-based access, enrollment API support, profile pictures, search, and pagination.
+
+### Planned Features
+
+1. Role-based users:
+
+   * Admin
+   * Instructor
+   * Student
+
+2. Student-Course enrollment improvements.
+
+3. Profile-picture uploads with file validation.
+
+4. REST API endpoints for enrollment and unenrollment.
+
+5. Student search, filtering, and pagination.
+
+### Planned Database Schema
+
+```mermaid
+erDiagram
+    USER {
+        int id PK
+        string username
+        string password_hash
+        string role
+        string profile_picture
+    }
+
+    STUDENT {
+        int student_id PK
+        string name
+        string email
+        string grades
+    }
+
+    COURSE {
+        int id PK
+        string name
+    }
+
+    STUDENT_COURSES {
+        int student_id FK
+        int course_id FK
+    }
+
+    STUDENT ||--o{ STUDENT_COURSES : enrolls
+    COURSE ||--o{ STUDENT_COURSES : contains
+```
+
+The existing `student_courses` association table will continue to represent the many-to-many enrollment relationship between students and courses.
+
+Planned changes to the `User` model:
+
+* Add a `role` field.
+* Supported roles will be `admin`, `instructor`, and `student`.
+* Add a `profile_picture` field containing the stored image path.
+
+### Planned API Enhancements
+
+Existing student and course CRUD endpoints will remain available.
+
+New enrollment endpoints are planned:
+
+```text
+POST    /api/students/<student_id>/courses/<course_id>
+DELETE  /api/students/<student_id>/courses/<course_id>
+GET     /api/students/<student_id>/courses
+```
+
+Planned student-list query parameters:
+
+```text
+GET /api/students?page=1
+GET /api/students?page=2&per_page=10
+GET /api/students?search=alice
+GET /api/students?search=alice&page=1&per_page=10
+```
+
+Planned course-list query parameters:
+
+```text
+GET /api/courses?page=1
+GET /api/courses?search=python
+GET /api/courses?search=python&page=1&per_page=10
+```
+
+The enrollment API will reject duplicate enrollments and return appropriate HTTP status codes for missing students, missing courses, and invalid requests.
+
