@@ -1,0 +1,18 @@
+body {
+    min-height: 100vh;
+}
+
+main {
+    min-height: 70vh;
+}
+
+.table-actions {
+    white-space: nowrap;
+}
+
+.profile-picture {
+    width: 160px;
+    height: 160px;
+    object-fit: cover;
+    border-radius: 50%;
+}
