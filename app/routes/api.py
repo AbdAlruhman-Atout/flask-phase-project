@@ -77,7 +77,15 @@ def parse_grade_list(value):
 
 @api_bp.route("/students", methods=["GET"])
 def get_students():
-    statement = db.select(Student).order_by(Student.name)
+    search = request.args.get("search", "").strip()
+
+    statement = db.select(Student)
+
+    if search:
+        statement = statement.where(Student.name.ilike(f"%{search}%"))
+
+    statement = statement.order_by(Student.name)
+
     students = db.session.execute(statement).scalars().all()
 
     return jsonify([student_to_dict(student) for student in students]), 200

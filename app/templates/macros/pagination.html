@@ -1,0 +1,77 @@
+{% macro render_pagination(pagination, endpoint, search="", label="Pagination") %}
+
+{% if pagination.pages > 1 %}
+
+<nav aria-label="{{ label }}">
+    <ul class="pagination justify-content-center mb-0">
+
+        <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
+            <a
+                class="page-link"
+                href="{% if pagination.has_prev %}
+                    {{ url_for(
+                        endpoint,
+                        page=pagination.prev_num,
+                        search=search
+                    ) }}
+                {% else %}
+                    #
+                {% endif %}"
+            >
+                Previous
+            </a>
+        </li>
+
+        {% for page_number in pagination.iter_pages() %}
+
+            {% if page_number %}
+
+                <li
+                    class="page-item
+                    {% if page_number == pagination.page %}active{% endif %}"
+                >
+                    <a
+                        class="page-link"
+                        href="{{ url_for(
+                            endpoint,
+                            page=page_number,
+                            search=search
+                        ) }}"
+                    >
+                        {{ page_number }}
+                    </a>
+                </li>
+
+            {% else %}
+
+                <li class="page-item disabled">
+                    <span class="page-link">…</span>
+                </li>
+
+            {% endif %}
+
+        {% endfor %}
+
+        <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+            <a
+                class="page-link"
+                href="{% if pagination.has_next %}
+                    {{ url_for(
+                        endpoint,
+                        page=pagination.next_num,
+                        search=search
+                    ) }}
+                {% else %}
+                    #
+                {% endif %}"
+            >
+                Next
+            </a>
+        </li>
+
+    </ul>
+</nav>
+
+{% endif %}
+
+{% endmacro %}

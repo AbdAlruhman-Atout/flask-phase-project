@@ -1,70 +1,274 @@
 {% extends "base.html" %}
 
+{% from "macros/pagination.html" import render_pagination %}
+
 {% block title %}Students{% endblock %}
 
 {% block content %}
-<h2>Students</h2>
 
-<p>
-    <a href="{{ url_for('students.register') }}">
-        Add student
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="mb-1">Students</h2>
+        <p class="text-muted mb-0">
+            Search and manage registered students.
+        </p>
+    </div>
+
+    <a
+        href="{{ url_for('students.register') }}"
+        class="btn btn-primary"
+    >
+        Add Student
     </a>
-</p>
+</div>
 
-{% if students %}
-<table border="1" cellpadding="6">
-    <thead>
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+
+        <label
+            for="student-search"
+            class="form-label"
+        >
+            Search students
+        </label>
+
+        <input
+            type="search"
+            id="student-search"
+            class="form-control"
+            placeholder="Search by student name..."
+            value="{{ search }}"
+            autocomplete="off"
+        >
+
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+
+                <thead class="table-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Average</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody id="student-table-body">
+
+                    {% for student in students %}
+                    <tr>
+                        <td>{{ student.student_id }}</td>
+
+                        <td>{{ student.name }}</td>
+
+                        <td>{{ student.email }}</td>
+
+                        <td>
+                            <span class="badge bg-secondary">
+                                {{ student.average }}
+                            </span>
+                        </td>
+
+                        <td class="table-actions">
+
+                            <a
+                                href="{{ url_for(
+                                    'students.student_detail',
+                                    student_id=student.student_id
+                                ) }}"
+                                class="btn btn-sm btn-outline-primary"
+                            >
+                                View
+                            </a>
+
+                            <a
+                                href="{{ url_for(
+                                    'students.edit_student',
+                                    student_id=student.student_id
+                                ) }}"
+                                class="btn btn-sm btn-outline-secondary"
+                            >
+                                Edit
+                            </a>
+
+                            <form
+                                method="POST"
+                                action="{{ url_for(
+                                    'students.delete_student',
+                                    student_id=student.student_id
+                                ) }}"
+                                class="d-inline"
+                            >
+                                <input
+                                    type="hidden"
+                                    name="csrf_token"
+                                    value="{{ csrf_token() }}"
+                                >
+
+                                <button
+                                    type="submit"
+                                    class="btn btn-sm btn-outline-danger"
+                                >
+                                    Delete
+                                </button>
+                            </form>
+
+                        </td>
+                    </tr>
+
+                    {% else %}
+
+                    <tr>
+                        <td
+                            colspan="5"
+                            class="text-center text-muted py-4"
+                        >
+                            {% if search %}
+                                No students found.
+                            {% else %}
+                                No students have been registered yet.
+                            {% endif %}
+                        </td>
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+            </table>
+        </div>
+
+        <div id="server-pagination">
+            {{ render_pagination(
+                pagination,
+                "students.student_list",
+                search,
+                "Student pagination"
+            ) }}
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+
+<script>
+const searchInput = document.getElementById("student-search");
+const tableBody = document.getElementById("student-table-body");
+const pagination = document.getElementById("server-pagination");
+
+let searchTimer;
+
+function escapeHtml(value) {
+    const div = document.createElement("div");
+    div.textContent = value;
+    return div.innerHTML;
+}
+
+function studentRow(student) {
+    const id = student.student_id;
+
+    return `
         <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Average</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for student in students %}
-        <tr>
-            <td>{{ student.student_id }}</td>
-            <td>{{ student.name }}</td>
-            <td>{{ student.email }}</td>
-            <td>{{ student.average }}</td>
+            <td>${id}</td>
+            <td>${escapeHtml(student.name)}</td>
+            <td>${escapeHtml(student.email)}</td>
+
             <td>
-                <a href="{{ url_for(
-                    'students.student_detail',
-                    student_id=student.student_id
-                ) }}">
+                <span class="badge bg-secondary">
+                    ${student.average}
+                </span>
+            </td>
+
+            <td class="table-actions">
+                <a
+                    href="/students/${id}"
+                    class="btn btn-sm btn-outline-primary"
+                >
                     View
                 </a>
 
-                <a href="{{ url_for(
-                    'students.edit_student',
-                    student_id=student.student_id
-                ) }}">
+                <a
+                    href="/students/${id}/edit"
+                    class="btn btn-sm btn-outline-secondary"
+                >
                     Edit
                 </a>
-
-                <form
-                    method="POST"
-                    action="{{ url_for(
-                        'students.delete_student',
-                        student_id=student.student_id
-                    ) }}"
-                    style="display:inline"
-                >
-    <input
-        type="hidden"
-        name="csrf_token"
-        value="{{ csrf_token() }}"
-    >
-                    <button type="submit">Delete</button>
-                </form>
             </td>
         </tr>
-        {% endfor %}
-    </tbody>
-</table>
-{% else %}
-<p>No students have been registered yet.</p>
-{% endif %}
+    `;
+}
+
+async function searchStudents() {
+    const query = searchInput.value.trim();
+
+    if (!query) {
+        window.location.href = "{{ url_for('students.student_list') }}";
+        return;
+    }
+
+    try {
+        const response = await fetch(
+            `/api/students?search=${encodeURIComponent(query)}`
+        );
+
+        if (!response.ok) {
+            throw new Error("Search request failed.");
+        }
+
+        const students = await response.json();
+
+        pagination.style.display = "none";
+
+        if (students.length === 0) {
+            tableBody.innerHTML = `
+                <tr>
+                    <td
+                        colspan="5"
+                        class="text-center text-muted py-4"
+                    >
+                        No students found.
+                    </td>
+                </tr>
+            `;
+
+            return;
+        }
+
+        tableBody.innerHTML = students
+            .map(studentRow)
+            .join("");
+
+    } catch (error) {
+        tableBody.innerHTML = `
+            <tr>
+                <td
+                    colspan="5"
+                    class="text-center text-danger py-4"
+                >
+                    Unable to load search results.
+                </td>
+            </tr>
+        `;
+    }
+}
+
+searchInput.addEventListener("input", () => {
+    clearTimeout(searchTimer);
+
+    searchTimer = setTimeout(
+        searchStudents,
+        300
+    );
+});
+</script>
+
 {% endblock %}
