@@ -42,6 +42,11 @@
         course_id=course.id
     ) }}"
 >
+    <input
+        type="hidden"
+        name="csrf_token"
+        value="{{ csrf_token() }}"
+    >
     <button type="submit">Delete course</button>
 </form>
 

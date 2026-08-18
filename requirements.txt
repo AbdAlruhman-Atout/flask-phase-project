@@ -4,3 +4,4 @@ Flask-Migrate
 Flask-Login
 python-dotenv
 pytest
+Flask-WTF

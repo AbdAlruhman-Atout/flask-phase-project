@@ -47,6 +47,7 @@ def user_to_dict(user):
     return {
         "id": user.id,
         "username": user.username,
+        "profile_picture": user.profile_picture,
     }
 
 

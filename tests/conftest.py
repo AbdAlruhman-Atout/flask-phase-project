@@ -14,12 +14,14 @@ def enable_sqlite_foreign_keys(dbapi_connection, connection_record):
 
 
 @pytest.fixture
-def app():
+def app(tmp_path):
     app = create_app(
         {
             "TESTING": True,
             "SECRET_KEY": "test-secret-key",
             "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
+            "WTF_CSRF_ENABLED": False,
+            "PROFILE_UPLOAD_FOLDER": str(tmp_path / "uploads"),
         }
     )
 

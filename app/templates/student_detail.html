@@ -44,6 +44,11 @@
         student_id=student.student_id
     ) }}"
 >
+    <input
+        type="hidden"
+        name="csrf_token"
+        value="{{ csrf_token() }}"
+    >
     <select name="course_id" required>
         {% for course in courses %}
             <option value="{{ course.id }}">
@@ -76,6 +81,11 @@
         student_id=student.student_id
     ) }}"
 >
+    <input
+        type="hidden"
+        name="csrf_token"
+        value="{{ csrf_token() }}"
+    >
     <button type="submit">Delete student</button>
 </form>
 
