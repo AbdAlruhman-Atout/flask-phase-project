@@ -11,10 +11,8 @@ The project uses Flask Blueprints, SQLAlchemy, Flask-Login, Flask-WTF, database 
 The application is deployed on Render.
 
 ```text
-REPLACE_WITH_YOUR_RENDER_URL
-```
+https://flask-phase-project.onrender.com/```
 
-> Replace the line above with the actual Render URL before final submission.
 
 ---
 
@@ -126,7 +124,7 @@ The project uses:
 * Flake8
 * GitHub Actions
 
-The current automated suite contains **29 tests** with approximately **82% application coverage**.
+The current automated suite contains **33 tests** with approximately **82% application coverage**.
 
 GitHub Actions automatically checks:
 
@@ -284,6 +282,7 @@ erDiagram
     USER {
         int id PK
         string username
+        string role
         string password_hash
         string profile_picture
     }
@@ -327,6 +326,12 @@ Main fields:
 Passwords are never stored directly. Werkzeug generates and verifies password hashes.
 
 The `profile_picture` field contains the relative path to an uploaded image rather than storing image data inside the database.
+
+The `role` field controls application permissions and supports:
+
+- `admin`
+- `instructor`
+- `student`
 
 ---
 
@@ -794,7 +799,7 @@ python -m pytest -q
 Current suite:
 
 ```text
-29 tests
+33 tests
 ```
 
 Tests cover:

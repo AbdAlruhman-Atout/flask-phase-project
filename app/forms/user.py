@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileAllowed, FileField, FileSize
-from wtforms import PasswordField, StringField, SubmitField
+from wtforms import PasswordField, SelectField, StringField, SubmitField
 from wtforms.validators import DataRequired, Length, Optional
 
 
@@ -11,6 +11,16 @@ class UserEditForm(FlaskForm):
             DataRequired(),
             Length(min=3, max=100),
         ],
+    )
+
+    role = SelectField(
+        "Role",
+        choices=[
+            ("admin", "Admin"),
+            ("instructor", "Instructor"),
+            ("student", "Student"),
+        ],
+        validators=[Optional()],
     )
 
     password = PasswordField(

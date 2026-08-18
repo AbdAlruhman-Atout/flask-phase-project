@@ -92,6 +92,7 @@
                             </a>
                         </li>
 
+                        {% if current_user.role == "admin" %}
                         <li class="nav-item">
                             <a
                                 class="nav-link"
@@ -100,6 +101,7 @@
                                 Users
                             </a>
                         </li>
+                        {% endif %}
 
                     {% endif %}
                 </ul>
@@ -111,6 +113,9 @@
                         <li class="nav-item">
                             <span class="navbar-text me-3">
                                 {{ current_user.username }}
+                                <span class="badge bg-secondary ms-1">
+                                    {{ current_user.role|capitalize }}
+                                </span>
                             </span>
                         </li>
 

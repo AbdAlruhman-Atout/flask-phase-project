@@ -14,12 +14,14 @@
         </p>
     </div>
 
+    {% if current_user.role in ["admin", "instructor"] %}
     <a
         href="{{ url_for('students.register') }}"
         class="btn btn-primary"
     >
         Add Student
     </a>
+    {% endif %}
 </div>
 
 <div class="card shadow-sm mb-4">

@@ -4,6 +4,7 @@ from sqlalchemy.exc import IntegrityError
 
 from app.extensions import db
 from app.models import Course, Student
+from app.utils.auth import roles_required
 
 
 students_bp = Blueprint("students", __name__)
@@ -32,7 +33,7 @@ def home():
     "/students/register",
     methods=["GET", "POST"],
 )
-@login_required
+@roles_required("admin", "instructor")
 def register():
     error = None
 
@@ -86,7 +87,6 @@ def student_list():
     page = request.args.get("page", 1, type=int)
     per_page = request.args.get("per_page", 10, type=int)
 
-    # Keep the page size within a reasonable range.
     per_page = max(1, min(per_page, 100))
 
     statement = db.select(Student)
@@ -115,6 +115,7 @@ def student_list():
 @login_required
 def student_detail(student_id):
     student = db.session.get(Student, student_id)
+
     if student is None:
         abort(404)
 
@@ -132,7 +133,7 @@ def student_detail(student_id):
     "/students/<int:student_id>/edit",
     methods=["GET", "POST"],
 )
-@login_required
+@roles_required("admin", "instructor")
 def edit_student(student_id):
     student = db.session.get(Student, student_id)
 
@@ -152,6 +153,7 @@ def edit_student(student_id):
             error = "Email is required."
 
         grades, grades_error = parse_grades(grades_text)
+
         if grades_error is not None:
             error = grades_error
 
@@ -184,7 +186,7 @@ def edit_student(student_id):
     "/students/<int:student_id>/delete",
     methods=["POST"],
 )
-@login_required
+@roles_required("admin", "instructor")
 def delete_student(student_id):
     student = db.session.get(Student, student_id)
 
@@ -202,7 +204,7 @@ def delete_student(student_id):
     "/students/<int:student_id>/enroll",
     methods=["POST"],
 )
-@login_required
+@roles_required("admin", "instructor")
 def enroll_student(student_id):
     course_id = request.form.get("course_id", type=int)
 

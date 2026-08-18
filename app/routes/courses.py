@@ -4,6 +4,7 @@ from sqlalchemy.exc import IntegrityError
 
 from app.extensions import db
 from app.models import Course
+from app.utils.auth import roles_required
 
 
 courses_bp = Blueprint("courses", __name__)
@@ -55,7 +56,7 @@ def course_detail(course_id):
 
 
 @courses_bp.route("/courses/add", methods=["GET", "POST"])
-@login_required
+@roles_required("admin", "instructor")
 def add_course():
     error = None
 
@@ -87,7 +88,7 @@ def add_course():
     "/courses/<int:course_id>/edit",
     methods=["GET", "POST"],
 )
-@login_required
+@roles_required("admin", "instructor")
 def edit_course(course_id):
     course = db.session.get(Course, course_id)
 
@@ -129,7 +130,7 @@ def edit_course(course_id):
     "/courses/<int:course_id>/delete",
     methods=["POST"],
 )
-@login_required
+@roles_required("admin", "instructor")
 def delete_course(course_id):
     course = db.session.get(Course, course_id)
 

@@ -18,6 +18,19 @@ class User(UserMixin, db.Model):
         nullable=False,
     )
 
+    role = db.Column(
+        db.String(20),
+        nullable=False,
+        default="student",
+        server_default="student",
+    )
+
+    profile_picture = db.Column(
+        db.String(255),
+        nullable=True,
+        default=None,
+    )
+
     profile_picture = db.Column(
         db.String(255),
         nullable=True,
