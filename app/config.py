@@ -46,7 +46,10 @@ class Config:
 
     MAX_CONTENT_LENGTH = 3 * 1024 * 1024
 
-    DEBUG = os.getenv(
-        "FLASK_DEBUG",
-        "0",
-    ) == "1"
+    DEBUG = (
+        os.getenv(
+            "FLASK_DEBUG",
+            "0",
+        )
+        == "1"
+    )
