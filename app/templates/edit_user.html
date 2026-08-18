@@ -3,33 +3,43 @@
 {% block title %}Edit User{% endblock %}
 
 {% block content %}
+
 <h2>Edit User</h2>
 
-{% if error %}
-<p>{{ error }}</p>
-{% endif %}
+<form
+    method="POST"
+    enctype="multipart/form-data"
+    novalidate
+>
+    {{ form.hidden_tag() }}
 
-<form method="POST">
-    <label for="username">Username:</label><br>
-    <input
-        type="text"
-        id="username"
-        name="username"
-        value="{{ user.username }}"
-        required
-    >
-    <br><br>
+    <p>
+        {{ form.username.label }}<br>
+        {{ form.username() }}
+    </p>
 
-    <label for="password">New password:</label><br>
-    <input
-        type="password"
-        id="password"
-        name="password"
-        placeholder="Leave blank to keep current password"
-    >
-    <br><br>
+    <p>
+        {{ form.password.label }}<br>
+        {{ form.password(
+            placeholder="Leave blank to keep current password"
+        ) }}
+    </p>
 
-    <button type="submit">Save changes</button>
+    <p>
+        {{ form.profile_picture.label }}<br>
+        {{ form.profile_picture(
+            accept=".jpg,.jpeg,.png,.gif,.webp"
+        ) }}
+    </p>
+
+    <p>
+        Maximum file size: 2 MB.<br>
+        Allowed types: JPG, JPEG, PNG, GIF, WEBP.
+    </p>
+
+    <p>
+        {{ form.submit() }}
+    </p>
 </form>
 
 <p>
@@ -40,4 +50,5 @@
         Cancel
     </a>
 </p>
+
 {% endblock %}

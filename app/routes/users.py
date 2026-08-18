@@ -1,9 +1,14 @@
-from flask import Blueprint, abort, flash, redirect, render_template, request, url_for
+from flask import Blueprint, abort, flash, redirect, render_template, url_for
 from flask_login import current_user, login_required, logout_user
 from sqlalchemy.exc import IntegrityError
 
 from app.extensions import db
 from app.models import User
+from app.forms import UserEditForm
+from app.utils.uploads import (
+    delete_profile_picture,
+    save_profile_picture,
+)
 
 
 users_bp = Blueprint("users", __name__)
@@ -46,41 +51,74 @@ def edit_user(user_id):
     if user is None:
         abort(404)
 
-    error = None
+    form = UserEditForm(obj=user)
 
-    if request.method == "POST":
-        username = request.form["username"].strip()
-        password = request.form["password"]
+    if form.validate_on_submit():
+        user.username = form.username.data.strip()
 
-        if not username:
-            error = "Username is required."
+        if form.password.data:
+            user.set_password(
+                form.password.data
+            )
 
-        if error is None:
-            user.username = username
+        old_picture = user.profile_picture
+        new_picture = None
 
-            if password:
-                user.set_password(password)
+        if form.profile_picture.data:
+            new_picture = save_profile_picture(
+                form.profile_picture.data
+            )
 
-            try:
-                db.session.commit()
-            except IntegrityError:
-                db.session.rollback()
-                error = "That username is already registered."
-            else:
-                flash("User updated successfully.", "success")
-                return redirect(
-                    url_for(
-                        "users.user_detail",
-                        user_id=user.id,
-                    )
+            user.profile_picture = new_picture
+
+        try:
+            db.session.commit()
+
+        except IntegrityError:
+            db.session.rollback()
+
+            if new_picture:
+                delete_profile_picture(
+                    new_picture
                 )
+
+            flash(
+                "That username is already registered.",
+                "error",
+            )
+
+        else:
+            if (
+                new_picture
+                and old_picture
+                and old_picture != new_picture
+            ):
+                delete_profile_picture(
+                    old_picture
+                )
+
+            flash(
+                "User updated successfully.",
+                "success",
+            )
+
+            return redirect(
+                url_for(
+                    "users.user_detail",
+                    user_id=user.id,
+                )
+            )
+
+    elif form.is_submitted():
+        for field_errors in form.errors.values():
+            for error in field_errors:
+                flash(error, "error")
 
     return render_template(
         "edit_user.html",
         user=user,
-        error=error,
+        form=form,
     )
-
 
 @users_bp.route(
     "/users/<int:user_id>/delete",

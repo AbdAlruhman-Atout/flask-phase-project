@@ -231,6 +231,3 @@ def enroll_student(student_id):
     )
 
 
-@students_bp.errorhandler(404)
-def page_not_found(error):
-    return render_template("not_found.html"), 404

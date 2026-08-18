@@ -1,26 +1,28 @@
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import Blueprint, flash, redirect, render_template, url_for
 from flask_login import login_required, login_user, logout_user
 from sqlalchemy.exc import IntegrityError
 
 from app.extensions import db
+from app.forms import LoginForm, RegistrationForm
 from app.models import Course, Student, User
 
 
 auth_bp = Blueprint("auth", __name__)
 
 
+def flash_form_errors(form):
+    for field_errors in form.errors.values():
+        for error in field_errors:
+            flash(error, "error")
+
+
 @auth_bp.route("/register", methods=["GET", "POST"])
 def register():
-    if request.method == "POST":
-        username = request.form["username"].strip()
-        password = request.form["password"]
+    form = RegistrationForm()
 
-        if not username or not password:
-            flash(
-                "Username and password are required.",
-                "error",
-            )
-            return render_template("auth_register.html")
+    if form.validate_on_submit():
+        username = form.username.data.strip()
+        password = form.password.data
 
         user = User(username=username)
         user.set_password(password)
@@ -31,7 +33,6 @@ def register():
 
         except IntegrityError:
             db.session.rollback()
-
             flash(
                 "That username is already registered.",
                 "error",
@@ -42,20 +43,33 @@ def register():
                 "Account created successfully. You can now log in.",
                 "success",
             )
+
             return redirect(url_for("auth.login"))
 
-    return render_template("auth_register.html")
+    elif form.is_submitted():
+        flash_form_errors(form)
+
+    return render_template(
+        "auth_register.html",
+        form=form,
+    )
 
 
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
-    if request.method == "POST":
-        username = request.form["username"].strip()
-        password = request.form["password"]
+    form = LoginForm()
 
-        statement = db.select(User).where(User.username == username)
+    if form.validate_on_submit():
+        username = form.username.data.strip()
+        password = form.password.data
 
-        user = db.session.execute(statement).scalar_one_or_none()
+        statement = db.select(User).where(
+            User.username == username
+        )
+
+        user = db.session.execute(
+            statement
+        ).scalar_one_or_none()
 
         if user is None or not user.check_password(password):
             flash(
@@ -73,7 +87,13 @@ def login():
 
             return redirect(url_for("auth.dashboard"))
 
-    return render_template("login.html")
+    elif form.is_submitted():
+        flash_form_errors(form)
+
+    return render_template(
+        "login.html",
+        form=form,
+    )
 
 
 @auth_bp.route("/logout")
@@ -95,9 +115,11 @@ def dashboard():
     student_count = db.session.scalar(
         db.select(db.func.count()).select_from(Student)
     )
+
     course_count = db.session.scalar(
         db.select(db.func.count()).select_from(Course)
     )
+
     user_count = db.session.scalar(
         db.select(db.func.count()).select_from(User)
     )

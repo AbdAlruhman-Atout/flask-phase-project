@@ -3,10 +3,33 @@
 {% block title %}User Details{% endblock %}
 
 {% block content %}
+
 <h2>User Details</h2>
 
-<p><strong>ID:</strong> {{ user.id }}</p>
-<p><strong>Username:</strong> {{ user.username }}</p>
+{% if user.profile_picture %}
+    <p>
+        <img
+            src="{{ url_for(
+                'static',
+                filename=user.profile_picture
+            ) }}"
+            alt="Profile picture for {{ user.username }}"
+            width="160"
+        >
+    </p>
+{% else %}
+    <p>No profile picture uploaded.</p>
+{% endif %}
+
+<p>
+    <strong>ID:</strong>
+    {{ user.id }}
+</p>
+
+<p>
+    <strong>Username:</strong>
+    {{ user.username }}
+</p>
 
 <p>
     <a href="{{ url_for(
@@ -24,7 +47,15 @@
         user_id=user.id
     ) }}"
 >
-    <button type="submit">Delete user</button>
+    <input
+        type="hidden"
+        name="csrf_token"
+        value="{{ csrf_token() }}"
+    >
+
+    <button type="submit">
+        Delete user
+    </button>
 </form>
 
 <p>
@@ -32,4 +63,5 @@
         Back to users
     </a>
 </p>
+
 {% endblock %}
